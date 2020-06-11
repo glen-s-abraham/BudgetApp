@@ -22,9 +22,29 @@ var budgetController=(function(){
             inc: 0
         }
     };
-
+    return {
+    	addData:function(type,desc,val){
+    		var newItem,ID;
+    		if (data.allItems[type].length > 0) {
+                ID = data.allItems[type][data.allItems[type].length - 1].id + 1;
+            } else {
+                ID = 0;
+            }
+            if(type==='exp'){
+            	newItem=new Expense(ID,desc,val);
+            }else if(type==='inc'){
+            	newItem=new Income(ID,desc,val);
+            }
+            data.allItems[type].push(newItem);
+            console.log(newItem);
+             }
+    	
+            }
+    }
 	
-}
+
+
+
 )();
 
 //UI Controller
@@ -71,10 +91,12 @@ document.addEventListener('keypress',function(event){
 }
 
 function setBudget(){
-	var inputs=uiCntrl.getUIData();
-	console.log(inputs);
+	
+	
 	//1.get inputs from ui
+	var inputs=uiCntrl.getUIData();
 	//2.send inputs to budgetcontrol
+	bdgtCntr.addData(inputs.type,inputs.descreption,inputs.value);
 	//3.calculate expense
 	//4.refresh ui
 
