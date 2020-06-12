@@ -36,7 +36,7 @@ var budgetController=(function(){
             	newItem=new Income(ID,desc,val);
             }
             data.allItems[type].push(newItem);
-            console.log(newItem);
+            return newItem;
              }
     	
             }
@@ -62,6 +62,32 @@ var UIController=(function(){
 				descreption:descreption,
 				value:value
 			}
+		},
+		setUIdata:function(obj,type){
+			var html,newhtml,fields;
+			if(type==='exp'){
+				container=document.querySelector('.expenses__list');
+				html='<div class="item clearfix" id="expense-%id%"><div class="item__description">%descreption%</div><div class="right clearfix"<div class="item__value">-%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+			}else if(type==='inc'){
+				container=document.querySelector('.income__list');
+				html='<div class="item clearfix" id="income-%id%"><div class="item__description">%descreption%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+			}
+			
+			newhtml=html.replace('%id%',obj.id);
+			newhtml=newhtml.replace('%descreption%',obj.descreption);
+			newhtml=newhtml.replace('%value%',obj.value);
+			container.insertAdjacentHTML('beforeend', newhtml);
+
+		},
+		clearFields:function(){
+			fields=document.querySelectorAll('.add__description,.add__value');
+			fieldsArr=Array.prototype.slice.call(fields);
+			console.log(fieldsArr);
+			fieldsArr.forEach(function(item,index){
+				item.value="";
+			});
+
+
 		}
 
 	}
@@ -96,9 +122,13 @@ function setBudget(){
 	//1.get inputs from ui
 	var inputs=uiCntrl.getUIData();
 	//2.send inputs to budgetcontrol
-	bdgtCntr.addData(inputs.type,inputs.descreption,inputs.value);
-	//3.calculate expense
-	//4.refresh ui
+	var newItem=bdgtCntr.addData(inputs.type,inputs.descreption,inputs.value);
+	uiCntrl.setUIdata(newItem,inputs.type);
+	//3.clear input fields
+	uiCntrl.clearFields();
+
+	//4.calculate expense
+	//5.refresh ui
 
 }
 
