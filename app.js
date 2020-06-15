@@ -20,8 +20,17 @@ var budgetController=(function(){
         totals: {
             exp: 0,
             inc: 0
-        }
+        },
+        budget:0,
+        percent:-1,
     };
+    function totals(type){
+    	data.totals[type]=0;
+    	data.allItems[type].forEach(function(item){
+    		data.totals[type]+=item.value;
+    	});
+    };
+    
     return {
     	addData:function(type,desc,val){
     		var newItem,ID;
@@ -37,9 +46,28 @@ var budgetController=(function(){
             }
             data.allItems[type].push(newItem);
             return newItem;
-             }
+             },
+        updateBudget:function(){
+        	totals('inc');
+        	totals('exp');
+        	data.budget=data.totals['inc']-data.totals['exp'];
+        	if(data.totals['inc']>0){
+        		data.percent=Math.round((data.totals['exp']/data.totals['inc'])*100);
+        	}
+        	data.budget=data.totals['inc']-data.totals['exp'];
+
+        } ,   
+        getBudget:function(){
+        	return{
+        		inc:data.totals['inc'],
+        		exp:data.totals['exp'],
+        		budget:data.budget,
+        		percent:data.percent
+        	}
+        }
     	
-            }
+     }
+
     }
 	
 
@@ -55,7 +83,7 @@ var UIController=(function(){
 		getUIData:function(){
 			var type=document.querySelector('.add__type').value;
 			var descreption=document.querySelector('.add__description').value;
-			var value=document.querySelector('.add__value').value;
+			var value=parseFloat(document.querySelector('.add__value').value);
 			//grouping inputs into an object to send as a whole
 			return{
 				type:type,
@@ -79,6 +107,7 @@ var UIController=(function(){
 			container.insertAdjacentHTML('beforeend', newhtml);
 
 		},
+
 		clearFields:function(){
 			fields=document.querySelectorAll('.add__description,.add__value');
 			fieldsArr=Array.prototype.slice.call(fields);
@@ -86,6 +115,17 @@ var UIController=(function(){
 			fieldsArr.forEach(function(item,index){
 				item.value="";
 			});
+
+
+		},
+		setUIBudget:function(obj){
+			document.querySelector('.budget__value').textContent=obj.budget;
+			document.querySelector('.budget__income--value').textContent=obj.inc;
+			document.querySelector('.budget__expenses--value').textContent=obj.exp;
+			if(obj.percent>0)
+				document.querySelector('.budget__expenses--percentage').textContent=obj.percent+"%";
+			else
+				document.querySelector('.budget__expenses--percentage').textContent='---';
 
 
 		}
@@ -115,6 +155,16 @@ document.addEventListener('keypress',function(event){
 });
 
 }
+function updatBudgetData(){
+	//1.update budget
+	bdgtCntr.updateBudget();
+}
+
+function setUIBudget(){
+	var bdgt=bdgtCntr.getBudget();
+	console.log(bdgt);
+	uiCntrl.setUIBudget(bdgt);
+}
 
 function setBudget(){
 	
@@ -122,20 +172,45 @@ function setBudget(){
 	//1.get inputs from ui
 	var inputs=uiCntrl.getUIData();
 	//2.send inputs to budgetcontrol
-	var newItem=bdgtCntr.addData(inputs.type,inputs.descreption,inputs.value);
-	uiCntrl.setUIdata(newItem,inputs.type);
-	//3.clear input fields
-	uiCntrl.clearFields();
+	if(inputs.descreption!=="" && !isNaN(inputs.value)&&inputs.value!==0){
+		var newItem=bdgtCntr.addData(inputs.type,inputs.descreption,inputs.value);
+		uiCntrl.setUIdata(newItem,inputs.type);
+		//3.clear input fields
+		uiCntrl.clearFields();
+		//call to update budget 
+		updatBudgetData();
+		
+		//5.refresh ui
+		
 
-	//4.calculate expense
-	//5.refresh ui
+		setUIBudget();
+
+	}
+	
+
+
 
 }
+
+
+
+
 
 //public function to access setEventListeners()
 return{
 	init:function(){
 		setEventListeners();
+		uiCntrl.setUIBudget(
+		{
+			inc:0,
+			exp:0,
+			budget:0,
+			percent:-1
+
+		}
+
+		);
+
 	}
 }
 
