@@ -95,10 +95,10 @@ var UIController=(function(){
 			var html,newhtml,fields;
 			if(type==='exp'){
 				container=document.querySelector('.expenses__list');
-				html='<div class="item clearfix" id="expense-%id%"><div class="item__description">%descreption%</div><div class="right clearfix"<div class="item__value">-%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+				html = '<div class="item clearfix" id="exp-%id%"><div class="item__description">%descreption%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
 			}else if(type==='inc'){
 				container=document.querySelector('.income__list');
-				html='<div class="item clearfix" id="income-%id%"><div class="item__description">%descreption%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>'
+				html = '<div class="item clearfix" id="inc-%id%"> <div class="item__description">%descreption%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
 			}
 			
 			newhtml=html.replace('%id%',obj.id);
@@ -145,6 +145,8 @@ function setEventListeners(){
 	console.log('button clicked');
 	setBudget();
 
+	
+
 });
 
 document.addEventListener('keypress',function(event){	
@@ -153,6 +155,8 @@ document.addEventListener('keypress',function(event){
 		setBudget();
 	}
 });
+document.querySelector('.container').addEventListener('click',deleteBudget)
+
 
 }
 function updatBudgetData(){
@@ -186,10 +190,19 @@ function setBudget(){
 		setUIBudget();
 
 	}
+
 	
 
 
 
+}
+function deleteBudget(event){
+	
+	itemId=event.target.parentNode.parentNode.parentNode.parentNode.id;
+	if(itemId){
+		splitId=itemId.split('-');
+		console.log(splitId);
+	}
 }
 
 
