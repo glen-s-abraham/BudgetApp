@@ -64,6 +64,14 @@ var budgetController=(function(){
         		budget:data.budget,
         		percent:data.percent
         	}
+        },
+        deleteBudget:function(type,id){
+        	ids=data.allItems[type].map(function(cur){
+        		return cur.id;
+
+        	});
+        	index=ids.indexOf(id);
+        	data.allItems[type].splice(index,1);
         }
     	
      }
@@ -127,6 +135,11 @@ var UIController=(function(){
 			else
 				document.querySelector('.budget__expenses--percentage').textContent='---';
 
+
+		},
+		deleteUIdata:function(elid){
+			var element=document.getElementById(elid);
+			element.parentNode.removeChild(element);
 
 		}
 
@@ -202,6 +215,10 @@ function deleteBudget(event){
 	if(itemId){
 		splitId=itemId.split('-');
 		console.log(splitId);
+		bdgtCntr.deleteBudget(splitId[0],parseInt(splitId[1]));
+		uiCntrl.deleteUIdata(itemId);
+		updatBudgetData();
+		setUIBudget();
 	}
 }
 
