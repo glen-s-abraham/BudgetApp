@@ -5,7 +5,18 @@ var budgetController=(function(){
 		this.id=id;
 		this.descreption=descreption;
 		this.value=value;
+		this.percent=-1;
 	};
+	Expense.prototype.calcPercentage = function(totalIncome) {
+        if (totalIncome > 0) {
+            this.percentage = Math.round((this.value / totalIncome) * 100);
+        } else {
+            this.percentage = -1;
+        }
+    };
+	Expense.prototype.getPercentage = function() {
+        return this.percentage;
+    };
 	var Income=function(id,descreption,value){
 		this.id=id;
 		this.descreption=descreption;
@@ -72,6 +83,17 @@ var budgetController=(function(){
         	});
         	index=ids.indexOf(id);
         	data.allItems[type].splice(index,1);
+        },
+        updatePercents:function(){
+        	data.allItems.exp.forEach(function(cur) {
+               cur.calcPercentage(data.totals.inc);
+            });
+        },
+        getPercents:function(){
+        	var totPercents=data.allItems.exp.map(function(cur) {
+               return cur.getPercentage();
+            });
+            return totPercents;
         }
     	
      }
@@ -202,6 +224,16 @@ function setBudget(){
 
 		setUIBudget();
 
+		//6.update percentages
+		bdgtCntr.updatePercents();
+
+
+		//get percentages
+		var percents=bdgtCntr.getPercents();
+		console.log(percents);
+
+
+
 	}
 
 	
@@ -219,6 +251,12 @@ function deleteBudget(event){
 		uiCntrl.deleteUIdata(itemId);
 		updatBudgetData();
 		setUIBudget();
+		//6.update percentages
+		bdgtCntr.updatePercents();
+
+
+		//get percentages
+		var percents=bdgtCntr.getPercents();
 	}
 }
 
