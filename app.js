@@ -107,6 +107,26 @@ var budgetController=(function(){
 
 //UI Controller
 var UIController=(function(){
+	function formatNumber(num,type){
+
+		var numSplit,dec,int;
+		num=Math.abs(num);
+		num=num.toFixed(2);
+
+		numSplit=num.split('.');
+
+		int=numSplit[0];
+		dec=numSplit[1];
+
+
+		if(int.length>3){
+			
+			int=int.substr(0,int.length-3)+','+int.substr(int.length-3,3);
+			
+		}
+		
+		return (type==='inc'?'+':'-')+' '+int+'.'+dec;
+	}
 
 	return{
 		//public function to return UI data
@@ -133,7 +153,7 @@ var UIController=(function(){
 			
 			newhtml=html.replace('%id%',obj.id);
 			newhtml=newhtml.replace('%descreption%',obj.descreption);
-			newhtml=newhtml.replace('%value%',obj.value);
+			newhtml=newhtml.replace('%value%',formatNumber(obj.value,type));
 			container.insertAdjacentHTML('beforeend', newhtml);
 
 		},
@@ -141,7 +161,7 @@ var UIController=(function(){
 		clearFields:function(){
 			fields=document.querySelectorAll('.add__description,.add__value');
 			fieldsArr=Array.prototype.slice.call(fields);
-			console.log(fieldsArr);
+			
 			fieldsArr.forEach(function(item,index){
 				item.value="";
 			});
@@ -149,9 +169,11 @@ var UIController=(function(){
 
 		},
 		setUIBudget:function(obj){
-			document.querySelector('.budget__value').textContent=obj.budget;
-			document.querySelector('.budget__income--value').textContent=obj.inc;
-			document.querySelector('.budget__expenses--value').textContent=obj.exp;
+			var type;
+			obj.budget>0?type='inc':type='exp';
+			document.querySelector('.budget__value').textContent=formatNumber(obj.budget,type);
+			document.querySelector('.budget__income--value').textContent=formatNumber(obj.inc,'inc');
+			document.querySelector('.budget__expenses--value').textContent=formatNumber(obj.exp,'exp');
 			if(obj.percent>0)
 				document.querySelector('.budget__expenses--percentage').textContent=obj.percent+"%";
 			else
@@ -163,7 +185,24 @@ var UIController=(function(){
 			var element=document.getElementById(elid);
 			element.parentNode.removeChild(element);
 
-		}
+		},
+		setDate:function(){
+			date=new Date();
+			month=date.getMonth();
+			year=date.getFullYear();
+			months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+			document.querySelector('.budget__title--month').textContent = months[month] + ' ' + year;
+
+		},
+		changedType: function() {
+            var fields,fieldsArr;
+            fields = document.querySelectorAll('.add__type,.add__description,.add__value');
+            fieldsArr=Array.prototype.slice.call(fields);
+            fieldsArr.forEach(function(cur){cur.classList.toggle('red-focus')});
+                        
+            document.querySelector('.add__btn').classList.toggle('red');
+            
+        },
 
 	}
 	
@@ -177,7 +216,7 @@ var controller=(function(bdgtCntr,uiCntrl){
 //function to start event listener
 function setEventListeners(){
 	document.querySelector('.add__btn').addEventListener('click',function(){
-	console.log('button clicked');
+	
 	setBudget();
 
 	
@@ -186,10 +225,12 @@ function setEventListeners(){
 
 document.addEventListener('keypress',function(event){	
 	if(event.key==='Enter'||event.code==='Enter'){
-		console.log('key pressed');
+		
 		setBudget();
 	}
 });
+
+document.querySelector('.add__type').addEventListener('change',uiCntrl.changedType)
 document.querySelector('.container').addEventListener('click',deleteBudget)
 
 
@@ -201,7 +242,7 @@ function updatBudgetData(){
 
 function setUIBudget(){
 	var bdgt=bdgtCntr.getBudget();
-	console.log(bdgt);
+	
 	uiCntrl.setUIBudget(bdgt);
 }
 
@@ -230,7 +271,7 @@ function setBudget(){
 
 		//get percentages
 		var percents=bdgtCntr.getPercents();
-		console.log(percents);
+		
 
 
 
@@ -278,6 +319,7 @@ return{
 		}
 
 		);
+		uiCntrl.setDate();
 
 	}
 }
